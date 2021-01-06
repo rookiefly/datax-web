@@ -2,16 +2,16 @@ package com.wugui.datax.admin.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.google.common.collect.Lists;
-import com.wugui.datatx.core.datasource.BaseDataSource;
-import com.wugui.datatx.core.datasource.DataSourceFactory;
 import com.wugui.datatx.core.enums.DbType;
 import com.wugui.datax.admin.entity.JobDatasource;
 import com.wugui.datax.admin.service.DatasourceQueryService;
 import com.wugui.datax.admin.service.JobDatasourceService;
-import com.wugui.datax.admin.tool.query.*;
+import com.wugui.datax.admin.tool.query.BaseQueryTool;
+import com.wugui.datax.admin.tool.query.HBaseQueryTool;
+import com.wugui.datax.admin.tool.query.MongoDBQueryTool;
+import com.wugui.datax.admin.tool.query.QueryToolFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class DatasourceQueryServiceImpl implements DatasourceQueryService {
     public List<String> getDBs(Long id) throws IOException {
         //获取数据源对象
         JobDatasource datasource = jobDatasourceService.getById(id);
-        return new MongoDBQueryTool(datasource.getType(),datasource.getConnectionParams()).getDBNames();
+        return new MongoDBQueryTool(datasource.getType(), datasource.getConnectionParams()).getDBNames();
     }
 
 
@@ -51,20 +51,19 @@ public class DatasourceQueryServiceImpl implements DatasourceQueryService {
     public List<String> getTables(Long id, String tableSchema) throws IOException {
         //获取数据源对象
         JobDatasource datasource = jobDatasourceService.getById(id);
-        BaseDataSource datasourceForm=DataSourceFactory.getDatasource(datasource.getType(),datasource.getConnectionParams());
         //queryTool组装
         if (ObjectUtil.isNull(datasource)) {
             return Lists.newArrayList();
         }
         if (DbType.HBASE.equals(datasource.getType())) {
-            return new HBaseQueryTool(datasource.getType(),datasource.getConnectionParams()).getTableNames();
+            return new HBaseQueryTool(datasource.getType(), datasource.getConnectionParams()).getTableNames();
         } else if (DbType.MONGODB.equals(datasource.getType())) {
-            return new MongoDBQueryTool(datasource.getType(),datasource.getConnectionParams()).getCollectionNames(datasourceForm.getDatabase());
+            return new MongoDBQueryTool(datasource.getType(), datasource.getConnectionParams()).getTables();
         } else {
-            BaseQueryTool qTool = QueryToolFactory.getByDbType(datasource.getType(),datasource.getConnectionParams());
-            if(StringUtils.isBlank(tableSchema)){
+            BaseQueryTool qTool = QueryToolFactory.getByDbType(datasource.getType(), datasource.getConnectionParams());
+            if (StringUtils.isBlank(tableSchema)) {
                 return qTool.getTableNames();
-            }else{
+            } else {
                 return qTool.getTableNames(tableSchema);
             }
         }
@@ -78,7 +77,7 @@ public class DatasourceQueryServiceImpl implements DatasourceQueryService {
         if (ObjectUtil.isNull(dataSource)) {
             return Lists.newArrayList();
         }
-        BaseQueryTool qTool = QueryToolFactory.getByDbType(dataSource.getType(),dataSource.getConnectionParams());
+        BaseQueryTool qTool = QueryToolFactory.getByDbType(dataSource.getType(), dataSource.getConnectionParams());
         return qTool.getDbSchema();
     }
 
@@ -90,7 +89,7 @@ public class DatasourceQueryServiceImpl implements DatasourceQueryService {
         if (ObjectUtil.isNull(datasource)) {
             return Lists.newArrayList();
         }
-        return new MongoDBQueryTool(datasource.getType(),datasource.getConnectionParams()).getCollectionNames(dbName);
+        return new MongoDBQueryTool(datasource.getType(), datasource.getConnectionParams()).getCollectionNames(dbName);
     }
 
 
@@ -103,11 +102,11 @@ public class DatasourceQueryServiceImpl implements DatasourceQueryService {
             return Lists.newArrayList();
         }
         if (DbType.HBASE.equals(datasource.getType())) {
-            return new HBaseQueryTool(datasource.getType(),datasource.getConnectionParams()).getColumns(tableName);
+            return new HBaseQueryTool(datasource.getType(), datasource.getConnectionParams()).getColumns(tableName);
         } else if (DbType.MONGODB.equals(datasource.getType())) {
-            return new MongoDBQueryTool(datasource.getType(),datasource.getConnectionParams()).getColumns(tableName);
+            return new MongoDBQueryTool(datasource.getType(), datasource.getConnectionParams()).getColumns(tableName);
         } else {
-            BaseQueryTool queryTool = QueryToolFactory.getByDbType(datasource.getType(),datasource.getConnectionParams());
+            BaseQueryTool queryTool = QueryToolFactory.getByDbType(datasource.getType(), datasource.getConnectionParams());
             return queryTool.getColumnNames(tableName, datasource.getType());
         }
     }
@@ -120,7 +119,7 @@ public class DatasourceQueryServiceImpl implements DatasourceQueryService {
         if (ObjectUtil.isNull(datasource)) {
             return Lists.newArrayList();
         }
-        BaseQueryTool queryTool = QueryToolFactory.getByDbType(datasource.getType(),datasource.getConnectionParams());
+        BaseQueryTool queryTool = QueryToolFactory.getByDbType(datasource.getType(), datasource.getConnectionParams());
         return queryTool.getColumnsByQuerySql(querySql);
     }
 
@@ -131,8 +130,12 @@ public class DatasourceQueryServiceImpl implements DatasourceQueryService {
      * @param parameter data source parameters
      * @return true if connect successfully, otherwise false
      */
-    public boolean checkConnection(DbType type, String parameter) {
+    @Override
+    public boolean checkConnection(DbType type, String parameter) throws IOException {
         Boolean isConnection = false;
+        if (DbType.MONGODB == type) {
+           return new MongoDBQueryTool(type, parameter).dataSourceTest();
+        }
         Connection con = getConnection(type, parameter);
         if (con != null) {
             isConnection = true;

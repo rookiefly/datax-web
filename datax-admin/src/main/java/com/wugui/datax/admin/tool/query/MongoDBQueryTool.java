@@ -1,7 +1,12 @@
 package com.wugui.datax.admin.tool.query;
 
 
-import com.mongodb.*;
+import com.mongodb.BasicDBObject;
+import com.mongodb.Block;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
@@ -23,8 +28,8 @@ import java.util.List;
 public class MongoDBQueryTool {
 
 
-    private static MongoClient connection = null;
-    private static MongoDatabase collections;
+    private MongoClient connection = null;
+    private MongoDatabase collections = null;
 
 
     public MongoDBQueryTool(DbType dbType, String parameter) throws IOException {
@@ -49,7 +54,7 @@ public class MongoDBQueryTool {
 
 
     // 关闭连接
-    public static void sourceClose() {
+    public void sourceClose() {
         if (connection != null) {
             connection.close();
         }
@@ -72,9 +77,19 @@ public class MongoDBQueryTool {
      *
      * @return
      */
-    public boolean dataSourceTest(String dbName) {
-        collections = connection.getDatabase(dbName);
+    public boolean dataSourceTest() {
         return collections.listCollectionNames().iterator().hasNext();
+    }
+
+    /**
+     * 获取Collection名称列表
+     *
+     * @return
+     */
+    public List<String> getTables() {
+        List<String> collectionNames = new ArrayList<>();
+        collections.listCollectionNames().forEach((Block<? super String>) collectionNames::add);
+        return collectionNames;
     }
 
     /**

@@ -14,3 +14,7 @@
 *.iml
 /datax-transformer/target/
 /applogs/
+docker/datax_web/
+docker/mysql/data/
+docker/admin/datax-admin_*.tar.gz
+docker/executor/datax-executor_*.tar.gz

@@ -1,13 +1,13 @@
 FROM alpine:3.10.3  
 
 
-MAINTAINER shizeying
+MAINTAINER rookiefly
 ## 设置默认语言环境
 ENV LANG=C.UTF-8
 ENV DATA_WEB=2.1.2
 ENV DATAX_VERSION=2.1.2_1
 ENV DATAX_NAME=datax-admin
-LABEL datax-admin-versiom="${DATAX_VERSION}" \
+LABEL datax-admin-version="${DATAX_VERSION}" \
 			org.label-schema.version="${version}" \
 			org.label-schema.vcs-url="https://github.com/WeiYe-Jing/datax-web" \
 			org.opencontainers.image.documentation="https://github.com/WeiYe-Jing/datax-web/blob/master/doc/datax-web/datax-web-deploy.md"
@@ -49,7 +49,6 @@ RUN sed -i 's|http://dl-cdn.alpinelinux.org|https://mirrors.aliyun.com|g' /etc/a
     echo "export LANG=$LANG" > /etc/profile.d/locale.sh && \
     \
     apk del glibc-i18n && \
-    rm "/root/.wget-hsts" && \
     apk del .build-dependencies && \
     rm \
     "$ALPINE_GLIBC_BASE_PACKAGE_FILENAME" \

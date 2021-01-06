@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -173,7 +174,7 @@ public class JobDatasourceController extends BaseController {
                                      @RequestParam(value = "principal", required = false) String principal,
                                      @RequestParam(value = "database", required = false) String database,
                                      @RequestParam(value = "comments", required = false) String comments,
-                                     @RequestParam(value = "other", required = false) String other) {
+                                     @RequestParam(value = "other", required = false) String other) throws IOException {
         String parameter = buildParameter(user, password, type, database, jdbcUrl, principal, comments);
         return success(datasourceQueryService.checkConnection(type, parameter));
     }

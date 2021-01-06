@@ -51,6 +51,7 @@ public interface DatasourceQueryService {
 
     /**
      * 根据数据源id，表名查询出该表所有字段
+     *
      * @param id
      * @param tableName
      * @return
@@ -61,6 +62,7 @@ public interface DatasourceQueryService {
 
     /**
      * 根据 sql 语句获取字段
+     *
      * @param dataSourceId
      * @param querySql
      * @return
@@ -76,5 +78,5 @@ public interface DatasourceQueryService {
      */
     List<String> getDbSchema(Long id);
 
-    boolean checkConnection(DbType type, String parameter);
+    boolean checkConnection(DbType type, String parameter) throws IOException;
 }
