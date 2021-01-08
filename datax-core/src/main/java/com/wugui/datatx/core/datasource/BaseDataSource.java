@@ -85,11 +85,11 @@ public abstract class BaseDataSource {
   protected void appendDatabase(StringBuilder jdbcUrl) {
     if (dbTypeSelector() == DbType.SQLSERVER) {
       jdbcUrl.append(";databaseName=").append(getDatabase());
-    } else {
+    } else if (StringUtils.isNotBlank(getDatabase())) {
       if (getAddress().lastIndexOf('/') != (jdbcUrl.length() - 1)) {
         jdbcUrl.append("/");
+        jdbcUrl.append(getDatabase());
       }
-      jdbcUrl.append(getDatabase());
     }
   }
 
