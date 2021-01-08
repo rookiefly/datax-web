@@ -14,6 +14,10 @@ LABEL datax-executor-version="${DATAX_VERSION}" \
 			org.opencontainers.image.documentation="https://github.com/WeiYe-Jing/datax-web/blob/master/doc/datax-web/datax-web-deploy.md"
 
 ADD ${DATAX_NAME}_${DATAX_VERSION}.tar.gz /opt/
+RUN wget http://datax-opensource.oss-cn-hangzhou.aliyuncs.com/datax.tar.gz && \
+	tar -xzvf datax.tar.gz -C /opt/ && \
+	rm datax.tar.gz
+#ADD datax.tar.gz /opt/
 ADD wait-for-it.sh /etc/init.d/
 
 # 安装 GNU libc (aka glibc)和C.UTF-8 locale的依赖 以及设置时区
@@ -97,7 +101,7 @@ ENV SERVER_PORT=${SERVER_PORT} \
     PYTHON_PATH=${PYTHON_PATH} \
     DATA_PATH=${DATA_PATH} \
     SERVICE_LOG_PATH=${SERVICE_LOG_PATH}
-RUN mkdir    /opt/${DATAX_NAME}/json /opt/${DATAX_NAME}/python /opt/${DATAX_NAME}/data /opt/${DATAX_NAME}/logs
+RUN mkdir /opt/${DATAX_NAME}/json /opt/${DATAX_NAME}/python /opt/${DATAX_NAME}/data /opt/${DATAX_NAME}/logs
 
 
 EXPOSE ${SERVER_PORT}

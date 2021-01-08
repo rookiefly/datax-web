@@ -8,7 +8,7 @@ services:
       MYSQL_USER: root
       MYSQL_DATABASE: datax_web
       TZ: Asia/Shanghai
-      character-set-server:  utf8mb4
+      character-set-server: utf8mb4
       collation-server: utf8mb4_unicode_ci
     ports:
       - 3308:3306
@@ -18,9 +18,9 @@ services:
       - ./mysql/logs:/logs
       - ./mysql/db:/docker-entrypoint-initdb.d/
     container_name: dataxWebMysql
-    networks: 
+    networks:
       - datax-network
-  
+
   datax-admin:
     image: rookiefly/datax-admin-alpine:2.1.2
     restart: always
@@ -38,10 +38,9 @@ services:
     depends_on:
       - mysql
     container_name: dataxWebAdmin
-    networks: 
+    networks:
       - datax-network
-  
-  
+
   datax-executor:
     image: rookiefly/datax-executor-alpine:2.1.2
     restart: always
@@ -56,13 +55,14 @@ services:
       DATAX_ADMIN_HOST: datax-admin
       DATAX_ADMIN_PORT: 9527
       EXECUTOR_PORT: 9999
+      PYTHON_PATH: /opt/datax/bin/datax.py
     #此处检测 dataxWebAdmin是否成功启动，如果将container_name和container_name.SERVER_PORT改变，请将下面的命令做响应该改变
     entrypoint: "/etc/init.d/wait-for-it.sh datax-admin:9527 --  java com.wugui.datax.executor.DataXExecutorApplication"
     depends_on:
       - mysql
       - datax-admin
     container_name: dataxWebExecutor
-    networks: 
+    networks:
       - datax-network
 
 networks:
